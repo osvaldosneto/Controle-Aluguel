@@ -1,0 +1,19 @@
+<h2>Hospedes Cadastrados:</h2>
+<hr>
+<a href="/admin/clientes/add"><button class="btn btn-success">Novo cliente</button></a>
+
+{{#each cliente}}
+    <div class="card mt-4">
+        <div class="card-body">
+            <h4>Cliente : {{nome}}</h4>
+            <small>Telefone : {{telefone}}</small><br>
+             <!--capturando o id da categorias-->
+            <a href="/admin/clientes/edit/{{_id}}"><button class="btn btn-primary btn-sm mt-2">Editar cliente</button></a>
+            <form action="/admin/clientes/deletar" method="POST">
+                <input type="hidden" name="id" value="{{_id}}">
+                <button type="submit" class="btn btn-secondary btn-sm mt-2">Deletar cliente</button>
+            </form>
+        </div>
+    </div>
+{{else}}
+{{/each}}

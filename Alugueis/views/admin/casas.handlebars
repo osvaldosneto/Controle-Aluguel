@@ -1,0 +1,18 @@
+<h2>Lista de Casas:</h2>
+<hr>
+<a href="/admin/casas/add"><button class="btn btn-success">Nova casa</button></a>
+
+{{#each casa}}
+    <div class="card mt-4">
+        <div class="card-body">
+            <h4>Hospedagem : {{nome}}</h4>
+             <!--capturando o id da categorias-->
+            <a href="/admin/casas/edit/{{_id}}"><button class="btn btn-primary btn-sm mt-2">Editar Hospedagem</button></a>
+            <form action="/admin/casas/deletar" method="POST">
+                <input type="hidden" name="id" value="{{_id}}">
+                <button type="submit" class="btn btn-secondary btn-sm mt-2">Deletar Hospedagem</button>
+            </form>
+        </div>
+    </div>
+{{else}}
+{{/each}}

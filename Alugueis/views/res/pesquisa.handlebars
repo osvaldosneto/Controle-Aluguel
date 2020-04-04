@@ -1,0 +1,39 @@
+<hr class="mt-4">
+<h2>Lista de Pesquisa</h2>
+<table class="table table-sm text-center">
+  <thead>
+    <tr>
+      <th scope="col">Cliente</th>
+      <th scope="col">Hospedagem</th>
+      <th scope="col">Entrada</th>
+      <th scope="col">Saída</th>
+      <th scope="col">Qtde dias</th>
+      <th scope="col">Diaria</th>
+      <th scope="col">Total</th>
+      <th scope="col">Ação</th>
+    </tr>
+  </thead>
+  <tbody>
+        {{#each reserva}}
+        <tr>
+        <td>{{cliente.nome}}</td>
+        <td>{{casa.nome}}</td>
+        <td>{{entrada}}</td>
+        <td>{{saida}}</td>
+        <td>{{dias}}</td>
+        <td>{{valor_diaria}},00</td>
+        <td>{{saldo}},00</td>
+        <td>
+            <a href="/admin/reservas/edit/{{_id}}"><button class="btn btn-primary btn-sm mt-2">editar</button></a>
+            <form action="/admin/reservas/deletar" method="POST">
+                <input type="hidden" name="id" value="{{_id}}">
+                <button type="submit" class="btn btn-secondary btn-sm mt-2">deletar</button>
+            </form>
+        </td>
+        </tr>
+        {{else}}
+            <p>Nenhuma reserva registrada.</p>
+        {{/each}}
+  </tbody>
+</table>
+<a href="/admin/reservas/consulta"><button class="btn btn-success">Nova Consulta</button></a>

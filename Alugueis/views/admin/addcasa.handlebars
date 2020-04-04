@@ -1,0 +1,16 @@
+<h2>Cadastro de Nova Hospedagem:</h2>
+<div class="card">
+    <div class="card-body">
+        <form action="/admin/casas/nova" method="POST">
+            <label form="nome">Hospedagem:</label>
+            <input type="text" id="casa" name="casa" placeholder="Nome da Casinha" class="form-control" required>
+            <label for="hospedes">Max hospedes:</label>
+            <input type="number" id="maxhospedes" name="maxhospedes" placeholder="0" class="form-control" min="1" required> 
+            <label for="diaria">Valor Diária:</label>
+            <input type="Number" name="diaria" size="10" maxlength="10" placeholder="R$ 0,00" onkeydown="FormataMoeda(this,10,event)" onkeypress="return maskKeyPress(event)" class="form-control"/ required>
+            <label for="hospedeextra">Hospede extra:</label>
+            <input type="Number" name="hospedeextra" size="10" maxlength="10" placeholder="R$ 00" onkeydown="FormataMoeda(this,10,event)" onkeypress="return maskKeyPress(event)" class="form-control" required/>
+            <button type="submit" class="btn btn-success mt-4">Confirmar</button>
+        </form>
+    </div>
+</div>

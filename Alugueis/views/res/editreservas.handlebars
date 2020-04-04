@@ -1,0 +1,25 @@
+<div class="card">
+    <div class="card-body">
+        <h2>Edição de Reservas:</h2>
+        <div class="card-body">
+            <form action="/admin/reservas/edit" method="post">
+                <h4><hr>
+                <p><label form="casa" class="mt-3">Hospedagem:  {{reserva.casa.nome}}</label></p>
+                <p><label form="cliente" class="mt-2">Cliente:  {{reserva.cliente.nome}}</p>
+                <input type="hidden" name="casa" value="{{reserva.casa._id}}">
+                <input type="hidden" name="cliente" value="{{reserva.cliente._id}}">
+                </h4>
+                <label for="entrada" class="mt-3">Check in:</label>
+                <input type="date", id="entrada" name="entrada" placeholder="dd/mm/aaaa" class="form-control" value="{{reserva.entrada}}" required>
+                <label for="saida" class="mt-3">Check out:</label>
+                <input type="date", id="saida" name="saida" placeholder="dd/mm/aaaa" class="form-control" value="{{reserva.saida}}" required>
+                <label for="hospedes" class="mt-3">Número Hospedes:</label>
+                <input type="number" name="hospedes" id="hospedes" placeholder="0" class="form-control" value="{{reserva.hospedes}}" required>
+                <label for="desconto" class="mt-3">Desconto:</label>
+                <input type="Number" name="desconto" size="10" maxlength="10" value="00" onkeydown="FormataMoeda(this,10,event)" onkeypress="return maskKeyPress(event)" class="form-control" value="00" required/>
+                <input type="hidden" name="id" value="{{reserva._id}}">
+                <button type="submit" class="btn btn-success mt-2">Confirmar</button>
+            </form>
+        </div>
+    </div>
+</div>

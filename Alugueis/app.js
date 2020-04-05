@@ -19,7 +19,6 @@ require("./config/auth")(passport)
         resave: true,
         saveUninitialized: true,
     }))
-
     app.use(passport.initialize())
     app.use(passport.session())
     app.use(flash())
@@ -44,7 +43,7 @@ require("./config/auth")(passport)
 
     //mongoose
     mongoose.Promise = global.Promise
-    mongoose.connect("mongodb://localhost/alugueis", { useNewUrlParser: true, useUnifiedTopology: true }).then(function(){ 
+    mongoose.connect("mongodb+srv://osvaldosn:rafavedi23@cluster0-8hl8n.mongodb.net/test?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true }).then(function(){ 
         console.log("conectado ao Mongo")
     }).catch(function(err){
         console.log("Erro ao conectar "+ err)
@@ -59,7 +58,7 @@ app.use('/admin', admin)
 app.use('/usuarios', usuarios)
 
 //outros
-const PORT = 9800
+const PORT = process.env.PORT || 9700
 app.listen(PORT, function(){ 
-    console.log('Servidor rodando na porta 9800')
+    console.log('Servidor rodando na porta ' + PORT)
 })

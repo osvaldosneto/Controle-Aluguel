@@ -1,18 +1,39 @@
-<h2>Lista de Casas:</h2>
-<hr>
-<a href="/admin/casas/add"><button class="btn btn-success">Nova casa</button></a>
+<h2>Hospedagens:</h2>
 
-{{#each casa}}
-    <div class="card mt-4">
-        <div class="card-body">
-            <h4>Hospedagem : {{nome}}</h4>
-             <!--capturando o id da categorias-->
-            <a href="/admin/casas/edit/{{_id}}"><button class="btn btn-primary btn-sm mt-2">Editar Hospedagem</button></a>
+<hr class="mt-4">
+<h2>Lista de Hospedagens:</h2>
+<table class="table table-sm text-center">
+  <thead>
+    <tr>
+      <th scope="col">Nome</th>
+      <th scope="col">Max Hospedes</th>
+      <th scope="col">Diária</th>
+      <th scope="col">Hospede Extra</th>
+      <th scope="col">Ação</th>
+    </tr>
+  </thead>
+  <tbody>
+        {{#each casa}}
+        <tr>
+        <td>{{nome}}</td>
+        <td>{{maxhospedes}}</td>
+        <td>{{diaria}}</td>
+        <td>{{hospedeextra}}</td>
+        <td>
+            <a href="/admin/casas/edit/{{_id}}"><button class="btn btn-primary btn-sm mt-2">editar</button></a>
             <form action="/admin/casas/deletar" method="POST">
                 <input type="hidden" name="id" value="{{_id}}">
-                <button type="submit" class="btn btn-secondary btn-sm mt-2">Deletar Hospedagem</button>
+                <button type="submit" class="btn btn-secondary btn-sm mt-2">deletar</button>
             </form>
-        </div>
-    </div>
-{{else}}
-{{/each}}
+        </td>
+        </tr>
+        {{else}}
+            <p>Nenhuma reserva registrada.</p>
+        {{/each}}
+  </tbody>
+</table>
+
+<hr>
+<a href="/admin/casas/add"><button class="btn btn-success">Nova Hospedagem</button></a>
+<br>
+<br>

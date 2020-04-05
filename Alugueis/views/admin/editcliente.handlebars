@@ -2,7 +2,6 @@
 <div class="card">
     <div class="card-body">
         <form action="/admin/clientes/edit" method="POST">
-            <input type="hidden" name="id" value="{{cliente._id}}">
             <label form="nome" class="mt-3">Cliente:</label>
             <input type="text" id="nome" name="nome" placeholder="Nome do Cliente" class="form-control" value="{{cliente.nome}}">
             <label for="telefone" class="mt-3">telefone:</label>
@@ -13,7 +12,7 @@
             <input type="text" id="cidade" value="{{cliente.cidade}}" name="cidade" placeholder="Cidade" class="form-control">
             <label form="nascimento" class="mt-3">Datanascimento:</label>
             <input type="date" id="nascimento" value="{{cliente.nascimento}}" name="nascimento" placeholder="00/00/00" class="form-control">
-            
+            <input type="hidden" name="id" value="{{cliente._id}}">
             <button type="submit" class="btn btn-success mt-2">Confirmar</button>
         </form>
     </div>

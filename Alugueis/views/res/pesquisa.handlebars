@@ -27,13 +27,22 @@
             <a href="/admin/reservas/edit/{{_id}}"><button class="btn btn-primary btn-sm mt-2">editar</button></a>
             <form action="/admin/reservas/deletar" method="POST">
                 <input type="hidden" name="id" value="{{_id}}">
-                <button type="submit" class="btn btn-secondary btn-sm mt-2">deletar</button>
+                <button type="submit" class="btn btn-secondary btn-sm mt-2">apagar</button>
             </form>
         </td>
         </tr>
         {{else}}
             <p>Nenhuma reserva registrada.</p>
         {{/each}}
+        <td><h4>Total</h4></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>{{dias}}</td>
+        <td></td>
+        <td>{{soma}},00</td>
   </tbody>
 </table>
-<a href="/admin/reservas/consulta"><button class="btn btn-success">Nova Consulta</button></a>
+<a href="/admin/reservas/consulta"><button class="btn btn-success mt-4">Nova Consulta</button></a>
+<br>
+<br>

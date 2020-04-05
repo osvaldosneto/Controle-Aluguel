@@ -16,9 +16,6 @@ const Cliente = new Schema({
     cidade:{
         type: String,
     },
-    idade:{
-        type: String,
-    },
     nascimento:{
         type: String,
     },

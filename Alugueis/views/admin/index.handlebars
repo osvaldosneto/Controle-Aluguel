@@ -1,1 +1,15 @@
-<button class="btn btn-success mt-4">Botao</button>
+{{#if user}}
+<div class="jumbotron">
+  <h1 class="display-4 table text-center">Área Administrativa</h1>
+  <h3 class="display-4 table text-center">Brisas do Farol</h3>
+  <h3 class="display-4 table text-center">Você está logado.</h3>
+  <hr class="my-4">
+</div>
+{{else}}
+<div class="jumbotron">
+  <h1 class="display-4 table text-center">Área Administrativa</h1>
+  <h3 class="display-4 table text-center">Brisas do Farol</h3>
+  <hr class="my-4">
+  <a class="btn btn-primary btn-lg" href="/usuarios/login" role="button">Log in</a>
+</div>
+{{/if}}

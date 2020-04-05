@@ -40,6 +40,10 @@ const Reserva = new Schema({
         type: String,
         required: true
     },
+    ano:{
+        type: String,
+        required: true
+    },
     date:{
         type: Date,
         default: Date.now()

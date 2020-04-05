@@ -8,6 +8,9 @@ const admin = require('./routes/admin')//chamando grupo de rotas admin
 const mongoose = require('mongoose')
 const session = require('express-session')
 const flash = require('connect-flash')
+const usuarios = require("./routes/usuario")
+const passport = require("passport")
+require("./config/auth")(passport)
 
 //configurações
     //sessão
@@ -16,6 +19,9 @@ const flash = require('connect-flash')
         resave: true,
         saveUninitialized: true,
     }))
+
+    app.use(passport.initialize())
+    app.use(passport.session())
     app.use(flash())
 
     //midleware
@@ -23,9 +29,10 @@ const flash = require('connect-flash')
         //variáveis globais
         res.locals.success_msg = req.flash("success_msg")
         res.locals.error_msg = req.flash("error_msg")
+        res.locals.error = req.flash("error")
+        res.locals.user = req.user || null;
         next()
     })
-
 
     //body-parser
     app.use(bodyParser.urlencoded({extended:true}))
@@ -49,9 +56,10 @@ const flash = require('connect-flash')
 //rotas
 //chamando rotas admin - fazendo o link
 app.use('/admin', admin)
+app.use('/usuarios', usuarios)
 
 //outros
 const PORT = 9800
-app.listen(PORT, function(){
+app.listen(PORT, function(){ 
     console.log('Servidor rodando na porta 9800')
 })

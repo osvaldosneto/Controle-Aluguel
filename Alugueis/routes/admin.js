@@ -7,6 +7,7 @@ require('../models/Cliente')
 const Cliente = mongoose.model('cliente')
 require('../models/Reserva')
 const Reserva = mongoose.model('reserva')
+const {eadmin} = require("../helpers/eadmin")
 
 //adição de rotas
 router.get("/", function(req, res){
@@ -14,7 +15,7 @@ router.get("/", function(req, res){
 })
 
 //rotas de casas
-router.get("/casas", function(req, res){
+router.get("/casas", eadmin, function(req, res){
     Casa.find().sort({date:'desc'}).lean().then(function (casa){
         res.render("admin/casas", {casa:casa})
     }).catch(function(error){
@@ -23,11 +24,11 @@ router.get("/casas", function(req, res){
     })
 })
 
-router.get("/casas/add", function(req, res){
+router.get("/casas/add", eadmin, function(req, res){
     res.render("admin/addcasa")
 })
 
-router.get("/casas/edit/:id", function(req, res){
+router.get("/casas/edit/:id", eadmin, function(req, res){
     Casa.findOne({_id:req.params.id}).lean().then(function(casa){
         res.render("admin/editcasa", {casa:casa})
     }).catch(function(err){
@@ -36,7 +37,7 @@ router.get("/casas/edit/:id", function(req, res){
     })
 })
 
-router.post("/casas/edit", function(req, res){
+router.post("/casas/edit", eadmin, function(req, res){
     Casa.findOne({_id: req.body.id}).then(function(casa){
         casa.nome = req.body.nome
         casa.maxhospedes = req.body.maxhospedes
@@ -55,7 +56,7 @@ router.post("/casas/edit", function(req, res){
     })
 })
 
-router.post("/casas/deletar", function(req, res){
+router.post("/casas/deletar", eadmin, function(req, res){
     Casa.deleteOne({_id: req.body.id}).then(function(){
         req.flash("success_msg", "Hospedagem excluida com sucesso!!") //mensagem
         res.redirect("/admin/casas")
@@ -65,7 +66,7 @@ router.post("/casas/deletar", function(req, res){
     })
 })
 
-router.post("/casas/nova", function(req, res){
+router.post("/casas/nova", eadmin, function(req, res){
     const novaCasa = {
         nome: req.body.casa,
         maxhospedes: req.body.maxhospedes,
@@ -83,39 +84,117 @@ router.post("/casas/nova", function(req, res){
 })
 
 //rotas de clientes
-router.get("/clientes", function(req, res){
-    Cliente.find().sort({date:'desc'}).lean().then(function (cliente){
-        res.render("admin/cliente", {cliente:cliente})
-    }).catch(function(error){
-        req.flash("error_msg", "Este cliente não existe.")
-        res.redirect("/admin/cliente")
-    })
+router.get("/clientes", eadmin, function(req, res){
+    res.render("admin/cliente")
 })
 
-router.get("/clientes/add", function(req, res){
+router.get("/clientes/consulta", eadmin, function(req, res){   
+    res.render("admin/consultacliente")
+})
+
+router.post("/clientes/pesquisa", eadmin, function(req, res){
+    if(req.body.telefone=="55-55555-5555" && req.body.nome=="nome" && req.body.cidade=="cidade"){
+        Cliente.find().lean().then(function(cliente){
+            res.render("admin/pesquisaclientes", {cliente:cliente})
+        }).catch(function(err){
+            req.flash("error_msg", "Houve um erro ao pesquisar hospede!!")
+            res.redirect("/admin/clientes")
+        })
+    } else if (req.body.telefone!="55-55555-5555" && req.body.nome!="nome" && req.body.cidade!="cidade"){
+        Cliente.find({telefone:req.body.telefone, nome:req.body.nome, cidade:req.body.cidade}).lean().then(function(cliente){
+            res.render("admin/pesquisaclientes", {cliente:cliente})
+        }).catch(function(err){
+            req.flash("error_msg", "Houve um erro ao pesquisar hospede!!")
+            res.redirect("/admin/clientes")
+        })
+    } else if (req.body.telefone=="55-55555-5555" && req.body.nome!="nome" && req.body.cidade!="cidade"){
+        Cliente.find({nome:req.body.nome, cidade:req.body.cidade}).lean().then(function(cliente){
+            res.render("admin/pesquisaclientes", {cliente:cliente})
+        }).catch(function(err){
+            req.flash("error_msg", "Houve um erro ao pesquisar hospede!!")
+            res.redirect("/admin/clientes")
+        })
+    } else if (req.body.telefone!="55-55555-5555" && req.body.nome=="nome" && req.body.cidade!="cidade"){
+        Cliente.find({telefone:req.body.telefone, cidade:req.body.cidade}).lean().then(function(cliente){
+            res.render("admin/pesquisaclientes", {cliente:cliente})
+        }).catch(function(err){
+            req.flash("error_msg", "Houve um erro ao pesquisar hospede!!")
+            res.redirect("/admin/clientes")
+        })
+    } else if (req.body.telefone!="55-55555-5555" && req.body.nome!="nome" && req.body.cidade=="cidade"){
+        Cliente.find({telefone:req.body.telefone, nome:req.body.nome}).lean().then(function(cliente){
+            res.render("admin/pesquisaclientes", {cliente:cliente})
+        }).catch(function(err){
+            req.flash("error_msg", "Houve um erro ao pesquisar hospede!!")
+            res.redirect("/admin/clientes")
+        })
+    } else if (req.body.telefone!="55-55555-5555" && req.body.nome=="nome" && req.body.cidade=="cidade"){
+        Cliente.find({telefone:req.body.telefone}).lean().then(function(cliente){
+            res.render("admin/pesquisaclientes", {cliente:cliente})
+        }).catch(function(err){
+            req.flash("error_msg", "Houve um erro ao pesquisar hospede!!")
+            res.redirect("/admin/clientes")
+        })
+    } else if (req.body.telefone=="55-55555-5555" && req.body.nome!="nome" && req.body.cidade=="cidade"){
+        Cliente.find({nome:req.body.nome}).lean().then(function(cliente){
+            res.render("admin/pesquisaclientes", {cliente:cliente})
+        }).catch(function(err){
+            req.flash("error_msg", "Houve um erro ao pesquisar hospede!!")
+            res.redirect("/admin/clientes")
+        })
+    } else if (req.body.telefone=="55-55555-5555" && req.body.nome!="nome" && req.body.cidade=="cidade"){
+        Cliente.find({nome:req.body.nome}).lean().then(function(cliente){
+            res.render("admin/pesquisaclientes", {cliente:cliente})
+        }).catch(function(err){
+            req.flash("error_msg", "Houve um erro ao pesquisar hospede!!")
+            res.redirect("/admin/clientes")
+        })
+    } else{
+        Cliente.find({cidade:req.body.cidade}).lean().then(function(cliente){
+            res.render("admin/pesquisaclientes", {cliente:cliente})
+            console.log("else geral")
+        }).catch(function(err){
+            req.flash("error_msg", "Houve um erro ao pesquisar hospede!!")
+            res.redirect("/admin/clientes")
+        })
+    }
+})
+
+
+router.get("/clientes/add", eadmin, function(req, res){
     res.render("admin/addcliente")
 })
 
-router.post("/clientes/novo", function(req, res){
-        const novoCliente = {
-        nome: req.body.nome,
-        telefone: req.body.telefone,
-        email: req.body.email,
-        cidade: req.body.cidade,
-        idade: req.body.idade,
-        nascimento: req.body.nascimento
-    }
-    new Cliente(novoCliente).save().then(function(){
-        req.flash("success_msg", "Cliente registrado com sucesso!!")
-        res.redirect("/admin/clientes")
+router.post("/clientes/novo", eadmin, function(req, res){
+    Cliente.findOne({telefone: req.body.telefone}).lean().then(function(cliente){
+        if(cliente){
+            req.flash("error_msg", "Houve um erro, cliente ja existente.")
+            res.redirect("/admin/clientes")
+        } else {
+            const novoCliente = {
+                nome: req.body.nome,
+                telefone: req.body.telefone,
+                email: req.body.email,
+                cidade: req.body.cidade,
+                idade: req.body.idade,
+                nascimento: req.body.nascimento
+            }
+            new Cliente(novoCliente).save().then(function(){
+                req.flash("success_msg", "Cliente registrado com sucesso!!")
+                res.redirect("/admin/clientes")
+            }).catch(function(err){
+                req.flash("error_msg", "Houve um erro ao registrar o cliente!!")
+                res.redirect("/addcliente")
+            })
+        }
+        
     }).catch(function(err){
         req.flash("error_msg", "Houve um erro ao registrar o cliente!!")
         res.redirect("/addcliente")
-        console.log("Erro ao armazenar" + err)
-    })
+    })   
 })
 
-router.get("/clientes/edit/:id", function(req, res){
+router.get("/clientes/edit/:id", eadmin, function(req, res){
     Cliente.findOne({_id:req.params.id}).lean().then(function(cliente){
         res.render("admin/editcliente", {cliente:cliente})
     }).catch(function(err){
@@ -124,7 +203,7 @@ router.get("/clientes/edit/:id", function(req, res){
     })
 })
 
-router.post("/clientes/deletar", function(req, res){
+router.post("/clientes/deletar", eadmin, function(req, res){
     Cliente.deleteOne({_id: req.body.id}).then(function(){
         req.flash("success_msg", "Cliente excluido com sucesso!!") //mensagem
         res.redirect("/admin/clientes")
@@ -134,19 +213,18 @@ router.post("/clientes/deletar", function(req, res){
     })
 })
 
-router.post("/clientes/edit/", function(req, res){
-    Cliente.findOne({_id: req.body.id}).lean().then(function(cliente){
+router.post("/clientes/edit", eadmin, function(req, res){
+    Cliente.findOne({_id: req.body.id}).then(function(cliente){
         cliente.nome = req.body.nome,
         cliente.telefone = req.body.telefone,
         cliente.email = req.body.email,
         cliente.cidade = req.body.cidade,
-        cliente.idade = req.body.idade,
-        cliente.nascimento = req.body.nascimento
+        cliente.nascimento = req.body.nascimento,
         cliente.save().then(function(){
             req.flash("success_msg", "Cliente editada com sucesso!!")
             res.redirect("/admin/clientes")
         }).catch(function(err){
-            req.flash("error_msg", "Houve um erro ao salvar edições.")
+            req.flash("error_msg", "Houve um erro ao salvar edições do cliente.")
             res.redirect("/admin/clientes")
         })
     }).catch(function(err){
@@ -156,11 +234,11 @@ router.post("/clientes/edit/", function(req, res){
 })
 
 //rotas de reservas
-router.get("/reservas", function(req, res){
+router.get("/reservas", eadmin, function(req, res){
     res.render("res/reservas")
 })
 
-router.get("/reservas/add", function(req, res){
+router.get("/reservas/add", eadmin, function(req, res){
     Cliente.find().sort({date:'desc'}).lean().then(function (clientes){
         Casa.find().sort({date:'desc'}).lean().then(function (casas){
             res.render("res/addreservas", {casas:casas, clientes:clientes})
@@ -174,7 +252,7 @@ router.get("/reservas/add", function(req, res){
     })
 })
 
-router.get("/reservas/consulta", function(req, res){
+router.get("/reservas/consulta", eadmin, function(req, res){
     Reserva.find().populate("cliente").populate('casa').sort({date:'desc'}).lean().then(function (reserva){         
         Cliente.find().sort({date:'desc'}).lean().then(function (clientes){
             Casa.find().sort({date:'desc'}).lean().then(function (casas){
@@ -193,11 +271,11 @@ router.get("/reservas/consulta", function(req, res){
     })
 })
 
-router.get("/reservas/novo", function(req, res){
+router.get("/reservas/novo", eadmin, function(req, res){
     res.redirect("/admin/reservas/consulta")
 })
 
-router.post("/reservas/novo", function(req, res){
+router.post("/reservas/novo", eadmin, function(req, res){
     var subtotal = ""
     var total = ""
     if(req.body.saida < req.body.entrada){
@@ -235,6 +313,7 @@ router.post("/reservas/novo", function(req, res){
                     valor_diaria: subtotal,
                     saldo: total,
                     mes: now.getMonth(),
+                    ano: now.getFullYear(),
                     hospedes: req.body.hospedes,
                     dias: days
                 }     
@@ -250,7 +329,7 @@ router.post("/reservas/novo", function(req, res){
     }
 })
 
-router.post("/reservas/confirma", function(req, res){
+router.post("/reservas/confirma", eadmin, function(req, res){
     const novaReserva = {
         casa: req.body.casa,
         cliente: req.body.cliente,
@@ -260,6 +339,7 @@ router.post("/reservas/confirma", function(req, res){
         valor_diaria: req.body.diaria,
         saldo: req.body.saldo,
         mes: req.body.mes,
+        ano: req.body.ano,
         hospedes: req.body.hospedes,
         dias: req.body.dias
     }
@@ -272,7 +352,7 @@ router.post("/reservas/confirma", function(req, res){
     })
 })
 
-router.post("/reservas/deletar", function(req, res){
+router.post("/reservas/deletar", eadmin, function(req, res){
     Reserva.deleteOne({_id: req.body.id}).then(function(){
         req.flash("success_msg", "Reserva excluida com sucesso!!") //mensagem
         res.redirect("/admin/reservas/consulta")
@@ -282,7 +362,7 @@ router.post("/reservas/deletar", function(req, res){
     })
 })
 
-router.get("/reservas/edit/:id", function(req, res){
+router.get("/reservas/edit/:id", eadmin, function(req, res){
     Reserva.findOne({_id:req.params.id}).populate("cliente").populate('casa').sort({date:'desc'}).lean().then(function (reserva){  
             res.render("res/editreservas", {reserva:reserva })
     }).catch(function(error){
@@ -291,7 +371,7 @@ router.get("/reservas/edit/:id", function(req, res){
     })
 })
 
-router.post("/reservas/edit", function(req, res){
+router.post("/reservas/edit", eadmin, function(req, res){
     if(req.body.saida < req.body.entrada){
         req.flash("error_msg", "Preenchimento de datas incorreto, verifique check in ou check out.")
         res.redirect("/admin/reservas/add") 
@@ -324,6 +404,7 @@ router.post("/reservas/edit", function(req, res){
             reserva.valor_diaria = subtotal,
             reserva.saldo = total,
             reserva.mes = now.getMonth(),
+            reserva.ano = now.getFullYear(),
             reserva.dias = days,
             reserva.save().then(function(){
                 req.flash("success_msg", "Reserva editada com sucesso!!")
@@ -339,65 +420,91 @@ router.post("/reservas/edit", function(req, res){
     }
 })
 
-router.post("/reservas/pesquisa", function(req, res){
+router.post("/reservas/pesquisa", eadmin, function(req, res){
     var mes = Number(req.body.mes)
-   // console.log(String(req.body.casa))
-   // console.log(req.body.cliente)
-    console.log(mes)
+    var soma = Number(0)
+    var dias = Number(0)
     if(req.body.casa == "0" && req.body.cliente == "0" && req.body.mes == 0){
-        Reserva.find().populate("cliente").populate('casa').sort({date:'desc'}).lean().then(function (reserva){  
-            res.render("res/pesquisa", {reserva:reserva })
+        Reserva.find().populate("cliente").populate('casa').sort({date:'desc'}).lean().then(function (reserva){ 
+            for(let i=0; i<reserva.length; i++){
+                dias = dias + parseInt(reserva[i].dias)
+                soma = soma + parseInt(reserva[i].saldo)
+            } 
+            res.render("res/pesquisa", {reserva:reserva, soma:soma, dias:dias})
         }).catch(function(error){
             req.flash("error_msg", "Esta reserva não existe.")
             res.redirect("/admin/reservas")
         })
-        //pesquisa todas as hospedagens
     } else if(req.body.casa == "0" && req.body.cliente ==  "0" && req.body.mes != 0){
         var mes = Number(req.body.mes)-1
-        Reserva.find({mes: mes}).populate("cliente").populate('casa').sort({date:'desc'}).lean().then(function (reserva){  
-            res.render("res/pesquisa", {reserva:reserva })
+        Reserva.find({mes: mes, ano:req.body.ano}).populate("cliente").populate('casa').sort({date:'desc'}).lean().then(function (reserva){  
+            for(let i=0; i<reserva.length; i++){
+                dias = dias + parseInt(reserva[i].dias)
+                soma = soma + parseInt(reserva[i].saldo)
+            } 
+            res.render("res/pesquisa", {reserva:reserva, soma:soma, dias:dias})
         }).catch(function(error){
             req.flash("error_msg", "Esta reserva não existe.")
             res.redirect("/admin/reservas")
         })
     } else if(req.body.casa == "0" && req.body.cliente != "0" && req.body.mes == 0){
         Reserva.find({cliente:req.body.cliente}).populate("cliente").populate('casa').sort({date:'desc'}).lean().then(function (reserva){  
-            res.render("res/pesquisa", {reserva:reserva })
+            for(let i=0; i<reserva.length; i++){
+                dias = dias + parseInt(reserva[i].dias)
+                soma = soma + parseInt(reserva[i].saldo)
+            } 
+            res.render("res/pesquisa", {reserva:reserva, soma:soma, dias:dias})
         }).catch(function(error){
             req.flash("error_msg", "Esta reserva não existe.")
             res.redirect("/admin/reservas")
         })
     } else if(req.body.casa != "0" && req.body.cliente == "0" && req.body.mes == 0){
         Reserva.find({casa:req.body.casa}).populate("cliente").populate('casa').sort({date:'desc'}).lean().then(function (reserva){  
-            res.render("res/pesquisa", {reserva:reserva })
+            for(let i=0; i<reserva.length; i++){
+                dias = dias + parseInt(reserva[i].dias)
+                soma = soma + parseInt(reserva[i].saldo)
+            } 
+            res.render("res/pesquisa", {reserva:reserva, soma:soma, dias:dias})
         }).catch(function(error){
             req.flash("error_msg", "Esta reserva não existe.")
             res.redirect("/admin/reservas")
         })
     } else if(req.body.casa != "0" && req.body.cliente == "0" && req.body.mes != 0){
         var mes = Number(req.body.mes)-1
-        Reserva.find({casa:req.body.casa, mes: mes}).populate("cliente").populate('casa').sort({date:'desc'}).lean().then(function (reserva){  
-            res.render("res/pesquisa", {reserva:reserva })
+        Reserva.find({casa:req.body.casa, mes: mes, ano:req.body.ano}).populate("cliente").populate('casa').sort({date:'desc'}).lean().then(function (reserva){  
+            for(let i=0; i<reserva.length; i++){
+                dias = dias + parseInt(reserva[i].dias)
+                soma = soma + parseInt(reserva[i].saldo)
+            } 
+            res.render("res/pesquisa", {reserva:reserva, soma:soma, dias:dias})
         }).catch(function(error){
             req.flash("error_msg", "Esta reserva não existe.")
             res.redirect("/admin/reservas")
         })
     } else if(req.body.casa != "0" && req.body.cliente != "0" && req.body.mes == 0){
         Reserva.find({casa:req.body.casa, cliente: req.body.cliente}).populate("cliente").populate('casa').sort({date:'desc'}).lean().then(function (reserva){  
-            res.render("res/pesquisa", {reserva:reserva })
+            for(let i=0; i<reserva.length; i++){
+                dias = dias + parseInt(reserva[i].dias)
+                soma = soma + parseInt(reserva[i].saldo)
+            } 
+            res.render("res/pesquisa", {reserva:reserva, soma:soma, dias:dias})
         }).catch(function(error){
             req.flash("error_msg", "Esta reserva não existe.")
             res.redirect("/admin/reservas")
         })
     } else if(req.body.casa == "0" && req.body.cliente != "0" && req.body.mes != 0){
         var mes = Number(req.body.mes)-1
-        Reserva.find({mes:mes, cliente: req.body.cliente}).populate("cliente").populate('casa').sort({date:'desc'}).lean().then(function (reserva){  
-            res.render("res/pesquisa", {reserva:reserva })
+        Reserva.find({mes:mes, ano: req.body.ano, cliente: req.body.cliente}).populate("cliente").populate('casa').sort({date:'desc'}).lean().then(function (reserva){  
+            for(let i=0; i<reserva.length; i++){
+                dias = dias + parseInt(reserva[i].dias)
+                soma = soma + parseInt(reserva[i].saldo)
+            } 
+            res.render("res/pesquisa", {reserva:reserva, soma:soma, dias:dias})
         }).catch(function(error){
             req.flash("error_msg", "Esta reserva não existe.")
             res.redirect("/admin/reservas")
         })
     }
 })
-        
+
 module.exports = router

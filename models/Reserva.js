@@ -36,6 +36,10 @@ const Reserva = new Schema({
         type: String,
         required: true
     },
+    subtotal:{
+        type: String,
+        required: true
+    },
     mes:{
         type: String,
         required: true

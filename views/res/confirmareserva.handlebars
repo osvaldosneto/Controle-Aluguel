@@ -10,6 +10,7 @@
       <th scope="col">Diaria</th>
       <th scope="col">Qtde dias</th> 
       <th scope="col">Hospedes</th>
+      <th scope="col">Subtotal</th>
       <th scope="col">Desconto</th>
       <th scope="col">Total</th>
  
@@ -21,11 +22,12 @@
         <td>{{novaReserva.nomeCasa}}</td>
         <td>{{novaReserva.entrada}}</td>
         <td>{{novaReserva.saida}}</td>
-        <td>{{novaReserva.valor_diaria}},00</td>
+        <td>{{novaReserva.valor_diaria}}</td>
         <td>{{novaReserva.dias}}</td>
         <td>{{novaReserva.hospedes}}</td>
-        <td>{{novaReserva.desconto}},00</td>
-        <td>{{novaReserva.saldo}},00</td>
+        <td>{{novaReserva.subtotal}}</td>
+        <td>{{novaReserva.desconto}}</td>
+        <td>{{novaReserva.saldo}}</td>
         <td>
             <a href="/admin/reservas/add"><button class="btn btn-primary btn-sm mt-2">editar</button></a>
             <form action="/admin/reservas/confirma" method="POST">
@@ -40,6 +42,7 @@
                 <input type="hidden" name="desconto" value="{{novaReserva.desconto}}">
                 <input type="hidden" name="saldo" value="{{novaReserva.saldo}}">
                 <input type="hidden" name="cliente" value="{{novaReserva.cliente}}">
+                <input type="hidden" name="subtotal" value="{{novaReserva.subtotal}}">
                 <button type="submit" class="btn btn-primary btn-sm mt-2">confirmar</button>
             </form>
         </td>

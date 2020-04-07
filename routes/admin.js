@@ -382,7 +382,7 @@ router.get("/reservas/edit/:id", eadmin, function(req, res){
 router.post("/reservas/edit", eadmin, function(req, res){
     var subtotal = ""
     var total = ""
-    var desconto = parseFloat(req.body.desconto.replace(",", "."))
+    var desconto = parseFloat(req.body.desconto.replace(",", ".")).toFixed(2)
     var diaria = ""
     if(req.body.saida < req.body.entrada){
         req.flash("error_msg", "Preenchimento de datas incorreto, verifique check in ou check out.")
@@ -391,15 +391,14 @@ router.post("/reservas/edit", eadmin, function(req, res){
         req.flash("error_msg", "Preenchimento do desconto incorreto.")
         res.redirect("/admin/reservas/add")
     } else  {
-        Reserva.findOne({_id: req.body.id}).populate('cliente').populate('casa').sort({date:'desc'}).then(function (reserva){
+        Reserva.findOne({_id: req.body.id}).populate('cliente').populate('casa').sort({date:'desc'}).then(function (reserva){          
             var dataEntrada = req.body.entrada.split("/")
             var dataSaida = req.body.saida.split("/")
             const now = new Date(dataEntrada[2], dataEntrada[1], dataEntrada[0]);
             const past = new Date(dataSaida[2], dataSaida[1], dataSaida[0]);
             const diff = Math.abs(now.getTime() - past.getTime());
             var days = parseInt(Math.ceil(diff / (1000 * 60 * 60 * 24)));
-            diaria = parseFloat(casa.diaria)
-            diaria = parseFloat(casa.diaria).toFixed(2)
+            diaria = parseFloat(reserva.casa.diaria).toFixed(2)     
             if(req.body.hospedes <= 2){
                 subtotal = (diaria*days).toFixed(2)
                 var aux = ((subtotal - desconto).toFixed(2)).toString()
@@ -407,10 +406,11 @@ router.post("/reservas/edit", eadmin, function(req, res){
                 total = aux.replace(".", ",")
             } else {
                 var hospedes = parseInt(req.body.hospedes) - Number(2)
-                subtotal = parseFloat((parseInt(diaria) + parseInt(casa.hospedeextra)*hospedes)*days).toFixed(2)
+                subtotal = parseFloat((parseInt(diaria) + parseInt(reserva.casa.hospedeextra)*hospedes)*days).toFixed(2)
                 var aux = ((subtotal - desconto).toFixed(2)).toString()
                 total = aux.replace(".", ",")
                 subtotal = subtotal.toString().replace(".", ",")
+                
             }
             reserva.hospedes = req.body.hospedes,
             reserva.entrada = req.body.entrada,
@@ -438,16 +438,19 @@ router.post("/reservas/edit", eadmin, function(req, res){
 
 router.post("/reservas/pesquisa", eadmin, function(req, res){
     var soma = Number(0)
-    var dias = Number(0) 
+    var dias = Number(0)
+    var subtotal = Number(0)
+    var desconto = Number(0)
     //console.log(ano)
     if(req.body.casa == "0" && req.body.cliente == "0" && req.body.mes == 0){
         Reserva.find().populate("cliente").populate('casa').sort({date:'desc'}).lean().then(function (reserva){ 
             for(let i=0; i<reserva.length; i++){
                 dias = dias + parseInt(reserva[i].dias)
                 soma = soma + parseFloat(reserva[i].saldo)
+                desconto = desconto + parseFloat(reserva[i].desconto)
+                subtotal = subtotal + parseFloat(reserva[i].subtotal)
             } 
-            soma = soma.toString().replace(".", ",")
-            res.render("res/pesquisa", {reserva:reserva, soma:soma, dias:dias})
+            res.render("res/pesquisa", {reserva:reserva, soma:soma, dias:dias, desconto:desconto, subtotal:subtotal})
         }).catch(function(error){
             req.flash("error_msg", "Esta reserva não existe.")
             res.redirect("/admin/reservas")
@@ -458,9 +461,10 @@ router.post("/reservas/pesquisa", eadmin, function(req, res){
             for(let i=0; i<reserva.length; i++){
                 dias = dias + parseInt(reserva[i].dias)
                 soma = soma + parseFloat(reserva[i].saldo)
+                desconto = desconto + parseFloat(reserva[i].desconto)
+                subtotal = subtotal + parseFloat(reserva[i].subtotal)
             } 
-            soma = soma.toString().replace(".", ",")
-            res.render("res/pesquisa", {reserva:reserva, soma:soma, dias:dias})
+            res.render("res/pesquisa", {reserva:reserva, soma:soma, dias:dias, desconto:desconto, subtotal:subtotal})
         }).catch(function(error){
             req.flash("error_msg", "Esta reserva não existe.")
             res.redirect("/admin/reservas")
@@ -470,9 +474,10 @@ router.post("/reservas/pesquisa", eadmin, function(req, res){
             for(let i=0; i<reserva.length; i++){
                 dias = dias + parseInt(reserva[i].dias)
                 soma = soma + parseFloat(reserva[i].saldo)
-            } 
-            soma = soma.toString().replace(".", ",")
-            res.render("res/pesquisa", {reserva:reserva, soma:soma, dias:dias})
+                desconto = desconto + parseFloat(reserva[i].desconto)
+                subtotal = subtotal + parseFloat(reserva[i].subtotal)
+            }
+            res.render("res/pesquisa", {reserva:reserva, soma:soma, dias:dias, desconto:desconto, subtotal:subtotal})
         }).catch(function(error){
             req.flash("error_msg", "Esta reserva não existe.")
             res.redirect("/admin/reservas")
@@ -482,9 +487,10 @@ router.post("/reservas/pesquisa", eadmin, function(req, res){
             for(let i=0; i<reserva.length; i++){
                 dias = dias + parseInt(reserva[i].dias)
                 soma = soma + parseFloat(reserva[i].saldo)
-            } 
-            soma = soma.toString().replace(".", ",")
-            res.render("res/pesquisa", {reserva:reserva, soma:soma, dias:dias})
+                desconto = desconto + parseFloat(reserva[i].desconto)
+                subtotal = subtotal + parseFloat(reserva[i].subtotal)
+            }
+            res.render("res/pesquisa", {reserva:reserva, soma:soma, dias:dias, desconto:desconto, subtotal:subtotal})
         }).catch(function(error){
             req.flash("error_msg", "Esta reserva não existe.")
             res.redirect("/admin/reservas")
@@ -495,9 +501,10 @@ router.post("/reservas/pesquisa", eadmin, function(req, res){
             for(let i=0; i<reserva.length; i++){
                 dias = dias + parseInt(reserva[i].dias)
                 soma = soma + parseFloat(reserva[i].saldo)
-            } 
-            soma = soma.toString().replace(".", ",")
-            res.render("res/pesquisa", {reserva:reserva, soma:soma, dias:dias})
+                desconto = desconto + parseFloat(reserva[i].desconto)
+                subtotal = subtotal + parseFloat(reserva[i].subtotal)
+            }
+            res.render("res/pesquisa", {reserva:reserva, soma:soma, dias:dias, desconto:desconto, subtotal:subtotal})
         }).catch(function(error){
             req.flash("error_msg", "Esta reserva não existe.")
             res.redirect("/admin/reservas")
@@ -507,9 +514,10 @@ router.post("/reservas/pesquisa", eadmin, function(req, res){
             for(let i=0; i<reserva.length; i++){
                 dias = dias + parseInt(reserva[i].dias)
                 soma = soma + parseFloat(reserva[i].saldo)
-            } 
-            soma = soma.toString().replace(".", ",")
-            res.render("res/pesquisa", {reserva:reserva, soma:soma, dias:dias})
+                desconto = desconto + parseFloat(reserva[i].desconto)
+                subtotal = subtotal + parseFloat(reserva[i].subtotal)
+            }
+            res.render("res/pesquisa", {reserva:reserva, soma:soma, dias:dias, desconto:desconto, subtotal:subtotal})
         }).catch(function(error){
             req.flash("error_msg", "Esta reserva não existe.")
             res.redirect("/admin/reservas")
@@ -520,9 +528,10 @@ router.post("/reservas/pesquisa", eadmin, function(req, res){
             for(let i=0; i<reserva.length; i++){
                 dias = dias + parseInt(reserva[i].dias)
                 soma = soma + parseFloat(reserva[i].saldo)
+                desconto = desconto + parseFloat(reserva[i].desconto)
+                subtotal = subtotal + parseFloat(reserva[i].subtotal)
             }
-            soma = soma.toString().replace(".", ",")
-            res.render("res/pesquisa", {reserva:reserva, soma:soma, dias:dias})
+            res.render("res/pesquisa", {reserva:reserva, soma:soma, dias:dias, desconto:desconto, subtotal:subtotal})
         }).catch(function(error){
             req.flash("error_msg", "Esta reserva não existe.")
             res.redirect("/admin/reservas")

@@ -7,8 +7,11 @@
       <th scope="col">Hospedagem</th>
       <th scope="col">Entrada</th>
       <th scope="col">Saída</th>
-      <th scope="col">Qtde dias</th>
+      <th scope="col">Hospedes</th>
       <th scope="col">Diaria</th>
+      <th scope="col">Qtde dias</th>
+      <th scope="col">SubTotal</th>
+      <th scope="col">Desc.</th>
       <th scope="col">Total</th>
       <th scope="col">Ação</th>
     </tr>
@@ -20,8 +23,11 @@
         <td>{{casa.nome}}</td>
         <td>{{entrada}}</td>
         <td>{{saida}}</td>
-        <td>{{dias}}</td>
+        <td>{{hospedes}}</td>
         <td>{{valor_diaria}}</td>
+        <td>{{dias}}</td>
+        <td>{{subtotal}}</td>
+        <td>{{desconto}}</td>
         <td>{{saldo}}</td>
         <td>
             <a href="/admin/reservas/edit/{{_id}}"><button class="btn btn-primary btn-sm mt-2">editar</button></a>
@@ -38,8 +44,11 @@
         <td></td>
         <td></td>
         <td></td>
-        <td>{{dias}}</td>
         <td></td>
+        <td></td>
+        <td>{{dias}}</td>
+        <td>{{subtotal}},00</td>
+        <td>{{desconto}},00</td>
         <td>{{soma}},00</td>
   </tbody>
 </table>

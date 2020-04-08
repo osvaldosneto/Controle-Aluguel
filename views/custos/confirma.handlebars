@@ -1,0 +1,20 @@
+<h2>Confirmação de custo:</h2>
+<hr>
+
+<div class="card mt-4">
+    <div class="card-body">
+        <h4>Tipo:   {{novoCusto.nome}}</h4>
+        <h5>Valor: R$ {{novoCusto.valor}}</h5>
+        <h5>Descrição:{{novoCusto.descricao}}</h5>
+        <small>Data:{{novoCusto.dia}}</small><br>
+        <hr>
+        <a href="/custos/addcustos"><button class="btn btn-primary btn-sm mt-2">editar</button></a>
+            <form action="/custos/confirmacusto" method="POST">
+                <input type="hidden" name="nome" value="{{novoCusto.nome}}">
+                <input type="hidden" name="valor" value="{{novoCusto.valor}}">
+                <input type="hidden" name="descricao" value="{{novoCusto.descricao}}">
+                <input type="hidden" name="dia" value="{{novoCusto.dia}}">
+                <button type="submit" class="btn btn-secondary btn-sm mt-2">confirma</button>
+            </form>
+    </div>
+</div>

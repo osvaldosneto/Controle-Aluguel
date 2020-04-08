@@ -1,0 +1,22 @@
+<h2>Pesquisa de custos:</h2>
+<hr>
+
+{{#each custos}}
+<div class="card mt-4">
+    <div class="card-body">
+        <h4>Tipo:   {{nome}}</h4>
+        <h5>Valor: R$ {{valor}}</h5>
+        <h5>Descrição:{{descricao}}</h5>
+        <small>Data:{{dia}}</small><br>
+        <hr>
+            <form action="/custos/deletar" method="POST">
+                <input type="hidden" name="id" value="{{_id}}">
+                <button type="submit" class="btn btn-secondary btn-sm mt-2">deletar</button>
+        </form>
+    </div>
+</div>
+{{else}}
+    <p>Nenhuma reserva registrada.</p>
+{{/each}}
+
+<a href="/custos"><button class="btn btn-primary btn-sm mt-2">voltar</button></a><br>

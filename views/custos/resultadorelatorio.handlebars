@@ -1,5 +1,5 @@
 <hr class="mt-4">
-<h2>Lista de Pesquisa</h2>
+<h2>Lista de Reservas</h2>
 <table class="table table-sm text-center">
   <thead>
     <tr>
@@ -13,7 +13,6 @@
       <th scope="col">SubTotal</th>
       <th scope="col">Desc.</th>
       <th scope="col">Total</th>
-      <th scope="col">Ação</th>
     </tr>
   </thead>
   <tbody>
@@ -29,13 +28,6 @@
         <td>{{subtotal}}</td>
         <td>{{desconto}}</td>
         <td>{{saldo}}</td>
-        <td>
-            <a href="/admin/reservas/edit/{{_id}}"><button class="btn btn-primary btn-sm mt-2">editar</button></a>
-            <form action="/admin/reservas/deletar" method="POST">
-                <input type="hidden" name="id" value="{{_id}}">
-                <button type="submit" class="btn btn-secondary btn-sm mt-2">apagar</button>
-            </form>
-        </td>
         </tr>
         {{else}}
             <p>Nenhuma reserva registrada.</p>
@@ -52,6 +44,34 @@
         <td>{{soma}}</td>
   </tbody>
 </table>
-<a href="/admin/reservas/consulta"><button class="btn btn-success mt-4">Nova Consulta</button></a>
+<br>
+<br>
+
+<hr class="mt-4">
+<h2>Lista de Custos</h2>
+<table class="table table-sm text-center">
+  <thead>
+    <tr>
+      <th scope="col">Tipo</th>
+      <th scope="col">Data</th>
+      <th scope="col">Valor</th>
+    </tr>
+  </thead>
+  <tbody>
+        {{#each custos}}
+        <tr>
+        <td>{{custos.nome}}</td>
+        <td>{{custos.dia}}</td>
+        <td>{{custos.valor}}</td>
+        </tr>
+        {{else}}
+            <p>Nenhuma reserva registrada.</p>
+        {{/each}}
+        <td><h4>Total</h4></td>
+        <td></td>
+        <td>{{desconto}}</td>
+        <td>{{soma}}</td>
+  </tbody>
+</table>
 <br>
 <br>

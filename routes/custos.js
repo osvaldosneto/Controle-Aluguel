@@ -26,10 +26,24 @@ router.get("/relatorio", eadmin, function(req, res){
 
 router.post("/relatorio", eadmin, function(req, res){
     var data = req.body.mes.split("/")
-    
     if( (isNaN(data[0])) || (isNaN(data[1])) ){
         req.flash("error_msg", "Preenchimento da data incorreto.")
-        res.redirect("/custos/addcustos")
+        res.redirect("/custos")
+    } else if(data=""){
+        Reserva.find().populate("cliente").populate('casa').sort({date:'desc'}).lean().then(function (reserva){  
+            var retorno = calculosReserva(reserva)
+            Custos.find().sort({date:'desc'}).lean().then(function (custos){
+                var retornoCusto = calculosCustos(custos)
+                var lucro = calculoslucro(retorno.soma, retornoCusto)
+                res.render("custos/resultadorelatorio", {custos:custos, reserva:reserva, lucro:lucro, retorno:retorno, retornoCusto:retornoCusto})
+            }).catch(function(error){
+                req.flash("error_msg", "Este custo não existe.")
+                res.redirect("/custos")
+            })   
+        }).catch(function(error){
+            req.flash("error_msg", "Esta reserva não existe.")
+            res.redirect("/admin/reservas")
+        })
     } else {
         Reserva.find({mes:data[0], ano:data[1]}).populate("cliente").populate('casa').sort({date:'desc'}).lean().then(function (reserva){  
             var retorno = calculosReserva(reserva)
@@ -63,7 +77,7 @@ router.post("/confirmacusto", eadmin, function(req, res){
         res.redirect("/custos")
     }).catch(function(err){
         req.flash("error_msg", "Houve um erro ao registrar a reserva!!")
-        res.redirect("/custos/addcustos")
+        res.redirect("/custos")
     })
 })
 
@@ -71,13 +85,17 @@ router.post("/confirma", eadmin, function(req, res){
     var data = req.body.data.split("/")
     var valor = parseFloat(req.body.valor.replace(",", ".")).toFixed(2)
     var valor_s = valor.toString().replace(".", ",")
+    if( data[0]==undefined || data[1]==undefined || data[2]==undefined ){
+        req.flash("error_msg", "Preenchimento da data incorreto.")
+        res.redirect("/custos")
+    }
     if( (isNaN(data[0])) || (isNaN(data[1])) || (isNaN(data[2])) ){
         req.flash("error_msg", "Preenchimento da data incorreto.")
-        res.redirect("/custos/addcustos")
+        res.redirect("/custos")
     }
     if (isNaN(valor)){
         req.flash("error_msg", "Preenchimento do valor incorreto.")
-        res.redirect("/custos/addcustos")
+        res.redirect("/custos")
     } else {
         const novoCusto = {
             nome: req.body.tipo,
@@ -182,7 +200,7 @@ function calculosCustos(custos){
     for(let i=0; i<custos.length; i++){
         totalcustos = Number(totalcustos) + Number(parseFloat((custos[i].valor).replace(",", ".")).toFixed(2))
     }
-    totalcustos = totalcustos.toString().replace(".", ",")
+    totalcustos = totalcustos.toFixed(2).toString().replace(".", ",")
     return totalcustos
 }
 

@@ -1,5 +1,5 @@
 <hr class="mt-4">
-<h2>Lista de Reservas</h2>
+<h2 class="text-center">Lista de Reservas</h2>
 <table class="table table-sm text-center">
   <thead>
     <tr>
@@ -38,17 +38,17 @@
         <td></td>
         <td></td>
         <td></td>
-        <td>{{dias}}</td>
-        <td>{{subtotal}}</td>
-        <td>{{desconto}}</td>
-        <td>{{soma}}</td>
+        <td>{{retorno.dias}}</td>
+        <td>{{retorno.subtotal}}</td>
+        <td>{{retorno.desconto}}</td>
+        <td>{{retorno.soma}}</td>
   </tbody>
 </table>
 <br>
 <br>
 
 <hr class="mt-4">
-<h2>Lista de Custos</h2>
+<h2 class="text-center">Lista de Custos</h2>
 <table class="table table-sm text-center">
   <thead>
     <tr>
@@ -60,18 +60,38 @@
   <tbody>
         {{#each custos}}
         <tr>
-        <td>{{custos.nome}}</td>
-        <td>{{custos.dia}}</td>
-        <td>{{custos.valor}}</td>
+        <td>{{nome}}</td>
+        <td>{{dia}}</td>
+        <td>{{valor}}</td>
         </tr>
         {{else}}
-            <p>Nenhuma reserva registrada.</p>
+            <p>Nenhum custo registrado.</p>
         {{/each}}
         <td><h4>Total</h4></td>
         <td></td>
-        <td>{{desconto}}</td>
-        <td>{{soma}}</td>
+        <td>{{retornoCusto}}</td>
   </tbody>
 </table>
+<br>
+<br>
+<hr class="mt-4">
+<h2 class="text-center">Balanço</h2>
+<table class="table table-sm text-center">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Custo Operacional</th>
+      <th scope="col">Lucro Bruto</th>
+      <th scope="col">Lucro Líquido</th>
+    </tr>
+  </thead>
+  <tbody>
+        <td><h4>Total</h4></td>
+        <td>{{retornoCusto}}</td>
+        <td>{{retorno.soma}}</td>
+        <td>{{lucro}}</td>
+  </tbody>
+</table>
+<a href="/custos"><button class="btn btn-success mt-2">voltar</button></a><br>
 <br>
 <br>

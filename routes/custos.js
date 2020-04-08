@@ -34,16 +34,9 @@ router.post("/relatorio", eadmin, function(req, res){
         Reserva.find({mes:data[0], ano:data[1]}).populate("cliente").populate('casa').sort({date:'desc'}).lean().then(function (reserva){  
             var retorno = calculosReserva(reserva)
             Custos.find({mes:data[0], ano:data[1]}).sort({date:'desc'}).lean().then(function (custos){
-                var custo = calculosCustos(custos)
-              /*  for(let i=0; i<custos.length; i++){
-                    var aux = parseFloat((custos[i].valor).replace(",", ".")).toFixed(2)
-                    totalcustos = Number(totalcustos) + Number(aux)
-                }
-                desconto = desconto.toString().replace(".", ",")
-                soma = soma.toString().replace(".", ",")
-                subtotal = subtotal.toString().replace(".", ",")
-                totalcustos = totalcustos.toString().replace(".", ",") */
-                res.render("custos/resultadorelatorio", {custos:custos, reserva:reserva, soma:soma, totalcustos:totalcustos, desconto:desconto, subtotal:subtotal})
+                var retornoCusto = calculosCustos(custos)
+                var lucro = calculoslucro(retorno.soma, retornoCusto)
+                res.render("custos/resultadorelatorio", {custos:custos, reserva:reserva, lucro:lucro, retorno:retorno, retornoCusto:retornoCusto})
             }).catch(function(error){
                 req.flash("error_msg", "Este custo não existe.")
                 res.redirect("/custos")
@@ -157,23 +150,6 @@ router.post("/pesquisa", eadmin, function(req, res){
     }   
 })
 
-function calculosCustos(custos){
-    var soma = 0
-    var desconto = 0
-    var dias = 0
-    var subtotal = 0
-    var totalcustos = 0
-    for(let i=0; i<custos.length; i++){
-        var aux = parseFloat((custos[i].valor).replace(",", ".")).toFixed(2)
-        totalcustos = Number(totalcustos) + Number(aux)
-    }
-    desconto = desconto.toString().replace(".", ",")
-    soma = soma.toString().replace(".", ",")
-    subtotal = subtotal.toString().replace(".", ",")
-    totalcustos = totalcustos.toString().replace(".", ",")
-}
-
-
 function calculosReserva(reserva) {
     var soma = Number(0)
     var dias = Number(0)
@@ -198,6 +174,23 @@ function calculosReserva(reserva) {
         dias : dias,
         subtotal : subtotal,
     }
+    return retorno
+}
+
+function calculosCustos(custos){
+    var totalcustos = 0
+    for(let i=0; i<custos.length; i++){
+        totalcustos = Number(totalcustos) + Number(parseFloat((custos[i].valor).replace(",", ".")).toFixed(2))
+    }
+    totalcustos = totalcustos.toString().replace(".", ",")
+    return totalcustos
+}
+
+function calculoslucro(receita, custo){
+    var re = parseFloat(receita.replace(",", ".")).toFixed(2)
+    var cus = parseFloat(custo.replace(",", ".")).toFixed(2)
+    var retorno = Number(re) - Number(cus)
+    retorno = retorno.toFixed(2).toString().replace(".", ",")
     return retorno
 }
 

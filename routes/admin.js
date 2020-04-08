@@ -436,11 +436,7 @@ router.post("/reservas/edit", eadmin, function(req, res){
 })
 
 router.post("/reservas/pesquisa", eadmin, function(req, res){
-    var soma = Number(0)
-    var dias = Number(0)
-    var subtotal = Number(0)
-    var desconto = Number(0)
-    //console.log(ano)
+    var data = req.body.mes.split("/")
     if(req.body.casa == "0" && req.body.cliente == "0" && req.body.mes == 0){
         Reserva.find().populate("cliente").populate('casa').sort({date:'desc'}).lean().then(function (reserva){ 
             var retorno = calculos(reserva)
@@ -450,8 +446,7 @@ router.post("/reservas/pesquisa", eadmin, function(req, res){
             res.redirect("/admin/reservas")
         })
     } else if(req.body.casa == "0" && req.body.cliente ==  "0" && req.body.mes != 0){
-        var data = (req.body.mes).split("/")
-        Reserva.find({mes: Number(data[0]), ano: Number(data[1])}).populate("cliente").populate('casa').sort({date:'desc'}).lean().then(function (reserva){  
+        Reserva.find({mes: data[0], ano: data[1]}).populate("cliente").populate('casa').sort({date:'desc'}).lean().then(function (reserva){  
             var retorno = calculos(reserva)
             res.render("res/pesquisa", {reserva:reserva, retorno:retorno})
         }).catch(function(error){
@@ -475,8 +470,7 @@ router.post("/reservas/pesquisa", eadmin, function(req, res){
             res.redirect("/admin/reservas")
         })
     } else if(req.body.casa != "0" && req.body.cliente == "0" && req.body.mes != 0){
-        var data = (req.body.mes).split("/")
-        Reserva.find({casa:req.body.casa, mes: Number(data[0]), ano: Number(data[1])}).populate("cliente").populate('casa').sort({date:'desc'}).lean().then(function (reserva){  
+        Reserva.find({casa:req.body.casa, mes: data[0], ano: data[1]}).populate("cliente").populate('casa').sort({date:'desc'}).lean().then(function (reserva){  
             var retorno = calculos(reserva)
             res.render("res/pesquisa", {reserva:reserva, retorno:retorno})
         }).catch(function(error){
@@ -493,7 +487,7 @@ router.post("/reservas/pesquisa", eadmin, function(req, res){
         })
     } else if(req.body.casa == "0" && req.body.cliente != "0" && req.body.mes != 0){
         var data = (req.body.mes).split("/")
-        Reserva.find({mes: Number(data[0]), ano: Number(data[1]), cliente: req.body.cliente}).populate("cliente").populate('casa').sort({date:'desc'}).lean().then(function (reserva){  
+        Reserva.find({mes: data[0], ano: data[1], cliente: req.body.cliente}).populate("cliente").populate('casa').sort({date:'desc'}).lean().then(function (reserva){  
             var retorno = calculos(reserva)
             res.render("res/pesquisa", {reserva:reserva, retorno:retorno})
         }).catch(function(error){

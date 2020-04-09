@@ -160,7 +160,6 @@ router.post("/clientes/pesquisa", eadmin, function(req, res){
     }
 })
 
-
 router.get("/clientes/add", eadmin, function(req, res){
     res.render("admin/addcliente")
 })
@@ -275,27 +274,45 @@ router.get("/reservas/novo", eadmin, function(req, res){
     res.redirect("/admin/reservas/consulta")
 })
 
-router.post("/reservas/novo", eadmin, function(req, res){   
-    var subtotal = ""
-    var total = ""
+router.get("/reservaconfirmada", eadmin, function(req, res){
+    req.flash("success_msg", "Reserva concluída com sucesso!!") //mensagem
+    res.redirect("/admin/reservas")
+})
+
+router.post("/reservas/novo", eadmin, function(req, res){
+    var erros = []
+    var mes_ent, ano_ent, days, data_saida, data_entrada, subtotal, diaria
     var desconto = parseFloat(req.body.desconto.replace(",", ".")).toFixed(2)
-    var diaria = ""
-    var dataEntrada = req.body.entrada.split("/")
-    var dataSaida = req.body.saida.split("/")
-    const now = new Date(dataEntrada[2], dataEntrada[1], dataEntrada[0]);
-    const past = new Date(dataSaida[2], dataSaida[1], dataSaida[0]);
-    const diff = Math.floor(past.getTime() - now.getTime());
-    var days = parseInt(Math.ceil(diff / (1000 * 60 * 60 * 24)));
-    if(diff < 0){
-        req.flash("error_msg", "Preenchimento de datas incorreto, verifique check in ou check out.")
-        res.redirect("/admin/reservas/add") 
-    } else if (isNaN(desconto)){
-        req.flash("error_msg", "Preenchimento do desconto incorreto.")
-        res.redirect("/admin/reservas/add")
-    } else if (isNaN(days)){
-        req.flash("error_msg", "Preenchimento das datas incorreto.")
-        res.redirect("/admin/reservas/add")
-    }else {
+    if(!fctValidaData(req.body.entrada)){
+        erros.push({texto: "Data de entrada inválida."})
+    }
+    if(!fctValidaData(req.body.saida)){
+        erros.push({texto: "Data de saida inválida."})
+    }
+    if(fctValidaData(req.body.entrada) && fctValidaData(req.body.saida)){
+        var dia_ent = req.body.entrada.substring(0,2)
+        var mes_ent = req.body.entrada.substring(3,5)
+        var ano_ent = req.body.entrada.substring(6,10)
+        var data_ent = new Date(ano_ent,mes_ent,dia_ent)
+        data_entrada = dia_ent+"/"+mes_ent+"/"+ano_ent
+        var dia_sai = req.body.saida.substring(0,2)
+        var mes_sai = req.body.saida.substring(3,5)
+        var ano_sai = req.body.saida.substring(6,10)
+        var data_sai = new Date(ano_sai,mes_sai,dia_sai)
+        data_saida = dia_sai+"/"+mes_sai+"/"+ano_sai
+        var diff = Math.floor(data_sai.getTime() - data_ent.getTime());
+        days = parseInt(Math.ceil(diff / (1000 * 60 * 60 * 24)));
+        if(days<0){
+            erros.push({texto: "Datas de entrada e saída inválidas."})
+        }
+    }
+    if (isNaN(desconto)){
+        erros.push({texto: "Desconto incorreto."})
+    }
+
+    if(erros.length > 0){
+        res.render('res/reservas',{erros:erros})
+    } else {
         Casa.findOne({_id: req.body.casa}).lean().then(function (casa){
             Cliente.findOne({_id: req.body.cliente}).lean().then(function(cliente){              
                 diaria = parseFloat(casa.diaria).toFixed(2)
@@ -319,12 +336,17 @@ router.post("/reservas/novo", eadmin, function(req, res){
                     valor_diaria: diaria.toString().replace(".", ","),
                     saldo: total.toString().replace(".", ","),
                     subtotal: subtotal.toString().replace(".", ","),
-                    mes: dataEntrada[1],
-                    ano: dataEntrada[2],
+                    mes: mes_ent,
+                    ano: ano_ent,
                     hospedes: req.body.hospedes,
-                    dias: days
-                }     
-                res.render("res/confirmareserva", {novaReserva:novaReserva})
+                    dias: days,
+                }
+                new Reserva(novaReserva).save().then(function(){
+                    res.render("res/confirmareserva", {novaReserva:novaReserva})
+                }).catch(function(err){
+                    req.flash("error_msg", "Houve um erro ao registrar a reserva!!")
+                    res.redirect("/admin/reservas")
+                }) 
             }).catch(function(error){
                 req.flash("error_msg", "Este cliente não existe.")
                 res.redirect("/admin/reservas")
@@ -334,30 +356,6 @@ router.post("/reservas/novo", eadmin, function(req, res){
             res.redirect("/admin/reservas")
         })
     }
-})
-
-router.post("/reservas/confirma", eadmin, function(req, res){
-    const novaReserva = {
-        casa: req.body.casa,
-        cliente: req.body.cliente,
-        entrada: req.body.entrada,
-        saida: req.body.saida,
-        desconto:req.body.desconto,
-        valor_diaria: req.body.diaria,
-        saldo: req.body.saldo,
-        mes: req.body.mes,
-        subtotal: req.body.subtotal,
-        ano: req.body.ano,
-        hospedes: req.body.hospedes,
-        dias: req.body.dias
-    }
-    new Reserva(novaReserva).save().then(function(){
-        req.flash("success_msg", "Reserva registrada com sucesso!!")
-        res.redirect("/admin/reservas")
-    }).catch(function(err){
-        req.flash("error_msg", "Houve um erro ao registrar a reserva!!")
-        res.redirect("/admin/reservas")
-    })
 })
 
 router.post("/reservas/deletar", eadmin, function(req, res){
@@ -380,36 +378,50 @@ router.get("/reservas/edit/:id", eadmin, function(req, res){
 })
 
 router.post("/reservas/edit", eadmin, function(req, res){
-    var subtotal = ""
-    var total = ""
+    var erros = []
+    var mes_ent, ano_ent, days, data_saida, data_entrada, subtotal, diaria, total
     var desconto = parseFloat(req.body.desconto.replace(",", ".")).toFixed(2)
-    var diaria = parseFloat(reserva.casa.diaria).toFixed(2)
-    var dataEntrada = req.body.entrada.split("/")
-    var dataSaida = req.body.saida.split("/")
-    const now = new Date(dataEntrada[2], dataEntrada[1], dataEntrada[0]);
-    const past = new Date(dataSaida[2], dataSaida[1], dataSaida[0]);
-    const diff = Math.float(now.getTime() - past.getTime());
-    var days = parseInt(Math.ceil(diff / (1000 * 60 * 60 * 24)));
-    if(diff > 0){
-        req.flash("error_msg", "Preenchimento de datas incorreto, verifique check in ou check out.")
-        res.redirect("/admin/reservas/add") 
-    } else if (isNaN(desconto)){
-        req.flash("error_msg", "Preenchimento do desconto incorreto.")
-        res.redirect("/admin/reservas/add")
-    } else if (isNaN(days)){
-        req.flash("error_msg", "Preenchimento das datas incorreto.")
-        res.redirect("/admin/reservas/add")
+    if(!fctValidaData(req.body.entrada)){
+        erros.push({texto: "Data de entrada inválida."})
+    }
+    if(!fctValidaData(req.body.saida)){
+        erros.push({texto: "Data de saida inválida."})
+    }
+    if(fctValidaData(req.body.entrada) && fctValidaData(req.body.saida)){
+        var dia_ent = req.body.entrada.substring(0,2)
+        var mes_ent = req.body.entrada.substring(3,5)
+        var ano_ent = req.body.entrada.substring(6,10)
+        var data_ent = new Date(ano_ent,mes_ent,dia_ent)
+        data_entrada = dia_ent+"/"+mes_ent+"/"+ano_ent
+        var dia_sai = req.body.saida.substring(0,2)
+        var mes_sai = req.body.saida.substring(3,5)
+        var ano_sai = req.body.saida.substring(6,10)
+        var data_sai = new Date(ano_sai,mes_sai,dia_sai)
+        data_saida = dia_sai+"/"+mes_sai+"/"+ano_sai
+        var diff = Math.floor(data_sai.getTime() - data_ent.getTime());
+        days = parseInt(Math.ceil(diff / (1000 * 60 * 60 * 24)));
+        if(days<0){
+            erros.push({texto: "Datas de entrada e saída inválidas."})
+        }
+    }
+    if (isNaN(desconto)){
+        erros.push({texto: "Desconto incorreto."})
+    }
+
+    if(erros.length > 0){
+        res.render('res/reservas',{erros:erros})
     }else {
+        
         Reserva.findOne({_id: req.body.id}).populate('cliente').populate('casa').sort({date:'desc'}).then(function (reserva){          
-            diaria = parseFloat(casa.diaria).toFixed(2)
+            diaria = parseFloat(reserva.casa.diaria).toFixed(2)
             if(req.body.hospedes <= 2){
                 subtotal = (diaria*days).toFixed(2)
                 total = (subtotal - desconto).toFixed(2)
             } else {
                 var hospedes = parseInt(req.body.hospedes) - Number(2)
-                subtotal = parseFloat((parseInt(diaria) + parseInt(casa.hospedeextra)*hospedes)*days).toFixed(2)
+                subtotal = (parseFloat(Number(diaria) + parseFloat(reserva.casa.hospedeextra)).toFixed(2))*days
                 total = (subtotal - desconto).toFixed(2)
-                diaria = parseFloat(Number(diaria) + parseInt((casa.hospedeextra)*hospedes)).toFixed(2)
+                diaria = parseFloat(Number(diaria) + parseFloat(reserva.casa.hospedeextra)).toFixed(2)
             }
             reserva.hospedes = req.body.hospedes,
             reserva.entrada = req.body.entrada,
@@ -418,8 +430,8 @@ router.post("/reservas/edit", eadmin, function(req, res){
             reserva.valor_diaria = diaria.toString().replace(".", ","),
             reserva.saldo = total.toString().replace(".", ","),
             reserva.subtotal = subtotal.toString().replace(".", ","),
-            reserva.mes = dataEntrada[1],
-            reserva.ano = dataEntrada[2],
+            reserva.mes = mes_ent,
+            reserva.ano = ano_ent,
             reserva.dias = days,
             reserva.save().then(function(){
                 req.flash("success_msg", "Reserva editada com sucesso!!")
@@ -522,6 +534,24 @@ function calculos(reserva) {
         subtotal : subtotal,
     }
     return retorno
+}
+
+function fctValidaData(obj){
+    var data = obj;
+    var dia = data.substring(0,2)
+    var mes = data.substring(3,5)
+    var ano = data.substring(6,10)
+
+    var novaData = new Date(ano,(mes-1),dia);
+
+    var mesmoDia = parseInt(dia,10) == parseInt(novaData.getDate());
+    var mesmoMes = parseInt(mes,10) == parseInt(novaData.getMonth())+1;
+    var mesmoAno = parseInt(ano) == parseInt(novaData.getFullYear());
+
+    if (!((mesmoDia) && (mesmoMes) && (mesmoAno))){   
+        return false;
+    }  
+    return true;
 }
 
 module.exports = router

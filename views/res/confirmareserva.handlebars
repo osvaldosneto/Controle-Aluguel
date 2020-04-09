@@ -29,22 +29,9 @@
         <td>{{novaReserva.desconto}}</td>
         <td>{{novaReserva.saldo}}</td>
         <td>
-            <a href="/admin/reservas/add"><button class="btn btn-primary btn-sm mt-2">editar</button></a>
-            <form action="/admin/reservas/confirma" method="POST">
-                <input type="hidden" name="casa" value="{{novaReserva.casa}}">
-                <input type="hidden" name="mes" value="{{novaReserva.mes}}">
-                <input type="hidden" name="ano" value="{{novaReserva.ano}}">
-                <input type="hidden" name="entrada" value="{{novaReserva.entrada}}">
-                <input type="hidden" name="saida" value="{{novaReserva.saida}}">
-                <input type="hidden" name="diaria" value="{{novaReserva.valor_diaria}}">
-                <input type="hidden" name="dias" value="{{novaReserva.dias}}">
-                <input type="hidden" name="hospedes" value="{{novaReserva.hospedes}}">
-                <input type="hidden" name="desconto" value="{{novaReserva.desconto}}">
-                <input type="hidden" name="saldo" value="{{novaReserva.saldo}}">
-                <input type="hidden" name="cliente" value="{{novaReserva.cliente}}">
-                <input type="hidden" name="subtotal" value="{{novaReserva.subtotal}}">
-                <button type="submit" class="btn btn-primary btn-sm mt-2">confirmar</button>
-            </form>
+            <a href="/admin/reservaconfirmada">
+              <button class="btn btn-primary btn-sm mt-2">confirmar</button>
+            </a>
         </td>
         </tr>
   </tbody>

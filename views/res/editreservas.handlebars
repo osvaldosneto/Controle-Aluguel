@@ -18,6 +18,8 @@
                 <label for="desconto" class="mt-3">Desconto:</label>
                 <input type="Number" name="desconto" size="10" maxlength="10" value="00,00" onkeydown="FormataMoeda(this,10,event)" onkeypress="return maskKeyPress(event)" class="form-control" value="00" required/>
                 <input type="hidden" name="id" value="{{reserva._id}}">
+                <p><label form="subtotal" class="mt-3">Subtotal:  {{reserva.subtotal}}</label></p>
+                <p><label form="total" class="mt-3">Total:     {{reserva.saldo}}</label></p>
                 <button type="submit" class="btn btn-success mt-2">Confirmar</button>
             </form>
         </div>

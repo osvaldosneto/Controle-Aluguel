@@ -60,7 +60,7 @@ app.use('/usuarios', usuarios)
 app.use('/custos', custos)
 
 //outros
-const PORT = process.env.PORT || 9800
+const PORT = process.env.PORT || 9700
 app.listen(PORT, function(){ 
     console.log('Servidor rodando na porta ' + PORT)
 })

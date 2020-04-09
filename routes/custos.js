@@ -25,41 +25,47 @@ router.get("/relatorio", eadmin, function(req, res){
 })
 
 router.post("/relatorio", eadmin, function(req, res){
-    var data = req.body.mes.split("/")
-    if( (isNaN(data[0])) || (isNaN(data[1])) ){
-        req.flash("error_msg", "Preenchimento da data incorreto.")
-        res.redirect("/custos")
-    } else if(data=""){
-        Reserva.find().populate("cliente").populate('casa').sort({date:'desc'}).lean().then(function (reserva){  
-            var retorno = calculosReserva(reserva)
-            Custos.find().sort({date:'desc'}).lean().then(function (custos){
-                var retornoCusto = calculosCustos(custos)
-                var lucro = calculoslucro(retorno.soma, retornoCusto)
-                res.render("custos/resultadorelatorio", {custos:custos, reserva:reserva, lucro:lucro, retorno:retorno, retornoCusto:retornoCusto})
-            }).catch(function(error){
-                req.flash("error_msg", "Este custo não existe.")
-                res.redirect("/custos")
-            })   
-        }).catch(function(error){
-            req.flash("error_msg", "Esta reserva não existe.")
-            res.redirect("/admin/reservas")
-        })
-    } else {
-        Reserva.find({mes:data[0], ano:data[1]}).populate("cliente").populate('casa').sort({date:'desc'}).lean().then(function (reserva){  
-            var retorno = calculosReserva(reserva)
-            Custos.find({mes:data[0], ano:data[1]}).sort({date:'desc'}).lean().then(function (custos){
-                var retornoCusto = calculosCustos(custos)
-                var lucro = calculoslucro(retorno.soma, retornoCusto)
-                res.render("custos/resultadorelatorio", {custos:custos, reserva:reserva, lucro:lucro, retorno:retorno, retornoCusto:retornoCusto})
-            }).catch(function(error){
-                req.flash("error_msg", "Este custo não existe.")
-                res.redirect("/custos")
-            })   
-        }).catch(function(error){
-            req.flash("error_msg", "Esta reserva não existe.")
-            res.redirect("/admin/reservas")
-        })
+    var verifica = "01/"+req.body.mes
+    var erros = []
+    if(!fctValidaData(verifica) && req.body.mes!= "mm/aaaa"){
+        erros.push({texto: "Data inválida."})
     }
+    if(erros.length > 0){
+        res.render('custos/index',{erros:erros})
+    } else {
+        if(req.body.mes=="mm/aaaa"){
+            Reserva.find().populate("cliente").populate('casa').sort({date:'desc'}).lean().then(function (reserva){  
+                var retorno = calculosReserva(reserva)
+                Custos.find().sort({date:'desc'}).lean().then(function (custos){
+                    var retornoCusto = calculosCustos(custos)
+                    var lucro = calculoslucro(retorno.soma, retornoCusto)
+                    res.render("custos/resultadorelatorio", {custos:custos, reserva:reserva, lucro:lucro, retorno:retorno, retornoCusto:retornoCusto})
+                }).catch(function(error){
+                    req.flash("error_msg", "Este custo não existe.")
+                    res.redirect("/custos")
+                })   
+            }).catch(function(error){
+                req.flash("error_msg", "Esta reserva não existe.")
+                res.redirect("/admin/reservas")
+            })
+        } else {
+            var data = req.body.mes.split("/")
+            Reserva.find({mes:data[0], ano:data[1]}).populate("cliente").populate('casa').sort({date:'desc'}).lean().then(function (reserva){  
+                var retorno = calculosReserva(reserva)
+                Custos.find({mes:data[0], ano:data[1]}).sort({date:'desc'}).lean().then(function (custos){
+                    var retornoCusto = calculosCustos(custos)
+                    var lucro = calculoslucro(retorno.soma, retornoCusto)
+                    res.render("custos/resultadorelatorio", {custos:custos, reserva:reserva, lucro:lucro, retorno:retorno, retornoCusto:retornoCusto})
+                }).catch(function(error){
+                    req.flash("error_msg", "Este custo não existe.")
+                    res.redirect("/custos")
+                })   
+            }).catch(function(error){
+                req.flash("error_msg", "Esta reserva não existe.")
+                res.redirect("/admin/reservas")
+            })
+        }
+    } 
 })
 
 router.post("/confirmacusto", eadmin, function(req, res){
@@ -82,20 +88,19 @@ router.post("/confirmacusto", eadmin, function(req, res){
 })
 
 router.post("/confirma", eadmin, function(req, res){
-    var data = req.body.data.split("/")
+    var erros = []
+    var data = req.body.data
     var valor = parseFloat(req.body.valor.replace(",", ".")).toFixed(2)
     var valor_s = valor.toString().replace(".", ",")
-    if( data[0]==undefined || data[1]==undefined || data[2]==undefined ){
-        req.flash("error_msg", "Preenchimento da data incorreto.")
-        res.redirect("/custos")
-    }
-    if( (isNaN(data[0])) || (isNaN(data[1])) || (isNaN(data[2])) ){
-        req.flash("error_msg", "Preenchimento da data incorreto.")
-        res.redirect("/custos")
+    if(!fctValidaData(req.body.data)){
+        erros.push({texto: "Data inválida."})
     }
     if (isNaN(valor)){
-        req.flash("error_msg", "Preenchimento do valor incorreto.")
-        res.redirect("/custos")
+        erros.push({texto: "Valor inválido."})
+    }
+    
+    if(erros.length > 0){
+        res.render('custos/index',{erros:erros})
     } else {
         const novoCusto = {
             nome: req.body.tipo,
@@ -133,6 +138,7 @@ router.post("/deletar", eadmin, function(req, res){
 })
 
 router.post("/pesquisa", eadmin, function(req, res){
+
     var data = req.body.data.split("/")
     if(req.body.tipo == "" && req.body.data == ""){
         Custos.find().sort({date:'desc'}).lean().then(function (custos){  
@@ -210,6 +216,24 @@ function calculoslucro(receita, custo){
     var retorno = Number(re) - Number(cus)
     retorno = retorno.toFixed(2).toString().replace(".", ",")
     return retorno
+}
+
+function fctValidaData(obj){
+    var data = obj;
+    var dia = data.substring(0,2)
+    var mes = data.substring(3,5)
+    var ano = data.substring(6,10)
+
+    var novaData = new Date(ano,(mes-1),dia);
+
+    var mesmoDia = parseInt(dia,10) == parseInt(novaData.getDate());
+    var mesmoMes = parseInt(mes,10) == parseInt(novaData.getMonth())+1;
+    var mesmoAno = parseInt(ano) == parseInt(novaData.getFullYear());
+
+    if (!((mesmoDia) && (mesmoMes) && (mesmoAno))){   
+        return false;
+    }  
+    return true;
 }
 
 module.exports = router

@@ -16,7 +16,7 @@
                 <label for="hospedes" class="mt-3">Número Hospedes:</label>
                 <input type="number" name="hospedes" id="hospedes" placeholder="0" class="form-control" value="{{reserva.hospedes}}" required>
                 <label for="desconto" class="mt-3">Desconto:</label>
-                <input type="text" name="desconto" size="10" maxlength="10" value="00,00" onkeydown="FormataMoeda(this,10,event)" onkeypress="return maskKeyPress(event)" class="form-control" value="00" required/>
+                <input type="text" name="desconto" class="form-control" onkeyup="maskIt(this,event,'###.###.###,##',true,{pre:'R$'})" value="00,00"/>
                 <input type="hidden" name="id" value="{{reserva._id}}">
                 <p><label form="subtotal" class="mt-3">Subtotal:  {{reserva.subtotal}}</label></p>
                 <p><label form="total" class="mt-3">Total:     {{reserva.saldo}}</label></p>
